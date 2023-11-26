@@ -56,7 +56,7 @@ jobs:
         run: pm2 stop sushi || true
 
       - name: Start bot with pm2
-        run: pm2 start dist/index.js --name sushi
+        run: pm2 start dist/main.js --name sushi
 
       - name: Save pm2 process list
         run: pm2 save
