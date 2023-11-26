@@ -9,7 +9,7 @@ export class RequestController {
   async receiveString(@Body('data') data: string, @Res() res): Promise<void> {
     console.log('Received string: ', data);
     const { client } = await importDynamic('@gradio/client');
-    const C = await client('https://phanthive-bigbrain.hf.space/--replicas/2glcb/', {})
+    const C = await client('https://phanthive-phanthive-bigbrain.hf.space/--replicas/9278f/', {})
     const result = await C.predict("/predict", [data])
     res.status(HttpStatus.OK).json({ prediction: result.data[0]})
   }
