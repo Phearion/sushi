@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Res, HttpStatus, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Res,
+  HttpStatus,
+  Req,
+  HttpException,
+} from '@nestjs/common';
 import RequestModel from '../assets/utils/models/Request';
 import type { IRequestDocument } from '../typings/MongoTypes';
 
@@ -14,31 +22,29 @@ export class SaveDataController {
     const ipAddress = req.ip;
 
     if (!request) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        error: 'Erreur lors de la sauvegarde des données',
-      });
-      return;
+      throw new HttpException(
+        'Request data is missing',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     try {
-      const data = (await RequestModel.findOne({
+      const existingData = (await RequestModel.findOne({
         ipAddress,
       })) as IRequestDocument;
-      if (data) {
-        data.request.push(request);
-        await data.save();
+      if (existingData) {
+        existingData.request.push(request);
+        await existingData.save();
       } else {
-        await RequestModel.create({
-          ipAddress: ipAddress,
-          request: [request],
-        });
+        await RequestModel.create({ ipAddress, request: [request] });
       }
       res.status(HttpStatus.OK).json({ message: 'Données sauvegardées' });
     } catch (error) {
-      console.log(error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-        error: 'Erreur lors de la sauvegarde des données',
-      });
+      console.error('Error saving data:', error);
+      throw new HttpException(
+        'Erreur lors de la sauvegarde des données',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }
