@@ -4,7 +4,7 @@ import type { IRequestDocument } from '../../../typings/MongoTypes';
 
 const requestSchema = new Schema<IRequestDocument>({
   request: { type: [String], required: true },
-  ipAddress: { type: String, required: true },
+  ipAddress: { type: String },
   aiAnswer: { type: [String], required: true },
 });
 

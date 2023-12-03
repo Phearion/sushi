@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res, HttpStatus } from '@nestjs/common';
 import RequestModel from '../assets/utils/models/Request';
 import type { IRequestDocument } from '../typings/MongoTypes';
 
@@ -7,6 +7,7 @@ export class SaveDataController {
   @Post()
   async receiveString(
     @Body('data') data: Record<string, string>,
+    @Res() res,
   ): Promise<void> {
     const userId = data.userId;
     const request = data.request;
@@ -26,8 +27,12 @@ export class SaveDataController {
           aiAnswer: ['MOUAHAH'],
         });
       }
+      res.status(HttpStatus.OK).json({ message: 'Données sauvegardées' });
     } catch (error) {
       console.log(error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        error: 'Erreur lors de la sauvegarde des données',
+      });
     }
   }
 }
