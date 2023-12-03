@@ -22,7 +22,7 @@ export const dbConnect = {
       family: 4,
     };
     await mongoose.connect(
-      `mongodb+srv://PhantHive:${process.env.VITE_MONGO_DB}@iris.txxhe.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
+      `mongodb+srv://PyLog:${process.env.VITE_MONGO_DB}@bigbrain-db.epdvacr.mongodb.net/`,
       options,
     );
 

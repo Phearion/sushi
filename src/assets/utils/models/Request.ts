@@ -3,8 +3,8 @@ import type { Model } from 'mongoose';
 import type { IRequestDocument } from '../../../typings/MongoTypes';
 
 const requestSchema = new Schema<IRequestDocument>({
-  userId: { type: String, required: true },
   request: { type: [String], required: true },
+  ipAddress: { type: String, required: true },
   aiAnswer: { type: [String], required: true },
 });
 
