@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \\\"src/**/*.ts\\\" \\\"__tests__/**/*.ts\\\"",
+    "format": "prettier --write \\\\\\\"src/**/*.ts\\\\\\\" \\\\\\\"src/__tests__/**/*.ts\\\\\\\"",
     "fix:gradio": "node modifyGradio.js",
     "start": "nest start",
     "dev": "nest start --watch",
@@ -24,7 +24,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config __tests__/jest-e2e.json",
+    "test:e2e": "jest --config src/__tests__/jest-e2e.json",
     "postinstall": "husky install"
   },
   "dependencies": {
