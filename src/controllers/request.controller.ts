@@ -6,6 +6,7 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
+import { getFiles } from './archive/getFiles';
 
 export const importDynamic = new Function(
   'modulePath',
@@ -30,7 +31,8 @@ export class RequestController {
         {},
       );
       const result = await C.predict('/predict', [data]);
-      res.status(HttpStatus.OK).json({ prediction: result.data[0] });
+      const files = await getFiles(result.data[0]);
+      res.status(HttpStatus.OK).json({ files });
     } catch (error) {
       console.error('Error during prediction:', error);
       throw new HttpException(
