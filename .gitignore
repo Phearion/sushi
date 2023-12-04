@@ -41,3 +41,6 @@ lerna-debug.log*
 # remove any __pycache__ directories
 __pycache__/
 
+.env
+.env.local
+.env.development.local
