@@ -46,9 +46,7 @@ jobs:
           username: ${{ secrets.PROD_SERVER_USER }}
           key: ${{ secrets.PROD_SERVER_SSH }}
           port: ${{ secrets.PROD_SERVER_PORT }}
-
-      - name: Unzip dist
-        run: unzip -o deploy.zip -d dist
+          command: 'unzip -o deploy.zip -d dist'
 
       - name: Whoami after deploy
         run: whoami
