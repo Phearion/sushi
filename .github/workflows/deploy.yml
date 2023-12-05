@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*' # Trigger the workflow on tags starting with 'v'
-      - 'feat/gradio-link'
+      -
 jobs:
   deploy:
     runs-on: self-hosted
@@ -23,6 +23,9 @@ jobs:
 
       - name: Execute Gradio Modification
         run: npm run fix:gradio
+
+      - name: Run tests
+        run: npm run test
 
       - name: Build
         run: npm run build
@@ -43,7 +46,7 @@ jobs:
           username: ${{ secrets.PROD_SERVER_USER }}
           key: ${{ secrets.PROD_SERVER_SSH }}
           port: ${{ secrets.PROD_SERVER_PORT }}
-          command: "unzip -o deploy.zip -d dist"
+          command: 'unzip -o deploy.zip -d dist'
 
       - name: Whoami after deploy
         run: whoami
