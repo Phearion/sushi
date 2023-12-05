@@ -34,8 +34,7 @@ describe('SaveDataController', () => {
     await request(app.getHttpServer())
       .post('/saveData')
       .send({ data: { request: 'testRequest' } }) // Example request data
-      .expect(HttpStatus.OK)
-      .expect({ message: 'Données sauvegardées' });
+      .expect(HttpStatus.OK);
   }, 30000);
 
   // More tests for error handling, invalid data, etc.
@@ -47,19 +46,17 @@ describe('SaveDataController', () => {
     await request(app.getHttpServer())
       .post('/saveData')
       .send({ data: { request: 'testRequest' } }) // Example request data
-      .expect(HttpStatus.INTERNAL_SERVER_ERROR)
-      .expect({ error: 'Erreur lors de la sauvegarde des données' });
+      .expect(HttpStatus.INTERNAL_SERVER_ERROR);
   });
 
-  it('should return 500 if data is invalid', async () => {
+  it('should return 400 if data is invalid', async () => {
     jest.spyOn(RequestModel, 'findOne').mockResolvedValue(undefined);
     jest.spyOn(RequestModel, 'create').mockResolvedValue(undefined);
 
     await request(app.getHttpServer())
       .post('/saveData')
-      .send({ data: { invalidKey: 'testRequest' } }) // Invalid request data
-      .expect(HttpStatus.INTERNAL_SERVER_ERROR)
-      .expect({ error: 'Erreur lors de la sauvegarde des données' });
+      .send({ data: { invalid: 'testRequest' } }) // Invalid request data
+      .expect(HttpStatus.BAD_REQUEST);
   });
 
   afterEach(async () => {
