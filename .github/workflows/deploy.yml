@@ -27,11 +27,11 @@ jobs:
       - name: Run tests
         run: npm run test
 
-      - name: Build
-        run: npm run build
-
       - name: Deploy private files
         run: sh deployPrivateFiles.sh
+
+      - name: Build
+        run: npm run build
 
       - name: Package only the dist folder
         uses: actions/upload-artifact@v2
