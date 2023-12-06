@@ -2,7 +2,7 @@
 
 # Set the source and destination directories
 SOURCE_DIR="/home/Phearion/sushiPrivate"
-DEST_DIR="$(pwd)/src/assets"
+DEST_DIR="$(pwd)/dist/assets"
 
 # if the destination directory does not exist, create it
 if [ ! -d "$DEST_DIR" ]; then
