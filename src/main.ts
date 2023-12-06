@@ -10,10 +10,7 @@ async function bootstrap() {
   const connectToDb: Promise<void> = dbConnect.init();
 
   app.enableCors({
-    origin: [
-      'http://localhost:5173',
-      'https://ipsa-scrypt.github.io/big-brain/',
-    ],
+    origin: '*',
   });
   await app.listen(process.env.VITE_PORT || 42125);
   await Promise.all([connectToDb, app]);
