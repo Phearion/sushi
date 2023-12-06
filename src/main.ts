@@ -12,9 +12,11 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
   });
-  await app.listen(process.env.VITE_PORT || 42125);
+
+  const port = process.env.PORT || 42125;
+  await app.listen(port);
   await Promise.all([connectToDb, app]);
   console.log('Connected to DB');
-  console.log('Server started! ', 'http://localhost:42125');
+  console.log('Server started! ', port);
 }
 bootstrap();
