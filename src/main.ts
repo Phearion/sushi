@@ -10,11 +10,13 @@ async function bootstrap() {
   const connectToDb: Promise<void> = dbConnect.init();
 
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: '*',
   });
-  await app.listen(42125);
+
+  const port = process.env.PORT || 42125;
+  await app.listen(port);
   await Promise.all([connectToDb, app]);
   console.log('Connected to DB');
-  console.log('Server started! ', 'http://localhost:42125');
+  console.log('Server started! ', port);
 }
 bootstrap();
