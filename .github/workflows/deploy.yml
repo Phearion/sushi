@@ -1,64 +1,73 @@
 name: SUSHI API
 
 on:
-  push:
-    tags:
-      - 'v*' # Trigger the workflow on tags starting with 'v'
+    push:
+        tags:
+            - 'v*' # Trigger the workflow on tags starting with 'v'
 jobs:
-  deploy:
-    runs-on: self-hosted
+    deploy:
+        runs-on: self-hosted
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 21.1.0
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 21.1.0
 
-      - name: Install dependencies
-        run: npm install
+            - name: Pyenv in 3.10 with name sushi-env
+              run: pyenv install 3.10.0 && pyenv virtualenv 3.10.0 sushi-env
 
-      - name: Execute Gradio Modification
-        run: npm run fix:gradio
+            - name: Pyenv activate
+              run: source sushi-env/bin/activate
 
-      - name: Run tests
-        run: npm run test
+            - name: Install Python dependencies
+              run: pip install -r requirements.txt
 
-      - name: Build
-        run: npm run build
+            - name: Install dependencies
+              run: npm install
 
-      - name: Deploy private files
-        run: sh deployPrivateFiles.sh
+            - name: Execute Gradio Modification
+              run: npm run fix:gradio
 
-      - name: Package only the dist folder
-        uses: actions/upload-artifact@v2
-        with:
-          name: dist
-          path: dist
+            - name: Run tests
+              run: npm run test
 
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.PROD_SERVER_IP }}
-          username: ${{ secrets.PROD_SERVER_USER }}
-          key: ${{ secrets.PROD_SERVER_SSH }}
-          port: ${{ secrets.PROD_SERVER_PORT }}
-          command: 'unzip -o deploy.zip -d dist'
+            - name: Build
+              run: npm run build
 
-      - name: Whoami after deploy
-        run: whoami
+            - name: Deploy private files
+              run: sh deployPrivateFiles.sh
 
-      # remove everything except on bash dist/
-      - name: Remove everything except dist/ and node_modules/ and package.json
-        run: ls -I dist -I node_modules -I package.json | xargs rm -rf
+            - name: Package only the dist folder
+              uses: actions/upload-artifact@v2
+              with:
+                  name: dist
+                  path: dist
 
-      - name: Stop bot with pm2 if running
-        run: pm2 stop sushi || true
+            - name: Deploy to server
+              uses: appleboy/ssh-action@master
+              with:
+                  host: ${{ secrets.PROD_SERVER_IP }}
+                  username: ${{ secrets.PROD_SERVER_USER }}
+                  key: ${{ secrets.PROD_SERVER_SSH }}
+                  port: ${{ secrets.PROD_SERVER_PORT }}
+                  command: 'unzip -o deploy.zip -d dist'
 
-      - name: Start bot with pm2
-        run: pm2 start dist/main.js --name sushi
+            - name: Whoami after deploy
+              run: whoami
 
-      - name: Save pm2 process list
-        run: pm2 save
+            # remove everything except on bash dist/
+            - name: Remove everything except dist/ and node_modules/ and package.json
+              run: ls -I dist -I node_modules -I package.json | xargs rm -rf
+
+            - name: Stop bot with pm2 if running
+              run: pm2 stop sushi || true
+
+            - name: Start bot with pm2
+              run: pm2 start dist/main.js --name sushi
+
+            - name: Save pm2 process list
+              run: pm2 save

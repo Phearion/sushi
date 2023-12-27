@@ -6,17 +6,17 @@ import { config } from 'dotenv';
 config({ path: './.env' });
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const connectToDb: Promise<void> = dbConnect.init();
+    const app = await NestFactory.create(AppModule);
+    const connectToDb: Promise<void> = dbConnect.init();
 
-  app.enableCors({
-    origin: '*',
-  });
+    app.enableCors({
+        origin: '*',
+    });
 
-  const port = process.env.PORT || 42125;
-  await app.listen(port);
-  await Promise.all([connectToDb, app]);
-  console.log('Connected to DB');
-  console.log('Server started! ', port);
+    const port = process.env.PORT || 42125;
+    await app.listen(port);
+    await Promise.all([connectToDb, app]);
+    console.log('Connected to DB');
+    console.log('Server started! ', port);
 }
 bootstrap();

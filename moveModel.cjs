@@ -4,10 +4,10 @@ const fs = require('fs-extra');
 const path = require('path');
 
 const moveModel = () => {
-  fs.copySync(
-    path.resolve(__dirname, './src/model'),
-    path.resolve(__dirname, './dist/model'),
-  );
+    fs.copySync(
+        path.resolve(__dirname, './src/model'),
+        path.resolve(__dirname, './dist/model'),
+    );
 };
 
 moveModel();
