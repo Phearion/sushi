@@ -28,7 +28,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: PhantHive/sushi-api:1.0
+          tags: phanthive/sushi:1.0
 
       # other steps like running tests can also be included here
 
@@ -40,7 +40,7 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH }}
           port: ${{ secrets.PROD_SERVER_PORT }}
           script: |
-            docker pull PhantHive/sushi-api:latest
+            docker pull phanthive/sushi:1.0
             docker stop sushi-api || true
             docker rm sushi-api || true
-            docker run -d --name sushi-api -p 3000:3000 PhantHive/sushi-api:1.0
+            docker run -d --name sushi-api -p 3000:3000 phanthive/sushi:1.0
