@@ -13,6 +13,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # specify your Node.js version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Execute Gradio Modification
+        run: npm run fix:gradio
+
+      - name: Run tests
+        run: npm run test
+
+      # If tests pass, build and push Docker image
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -30,8 +45,6 @@ jobs:
           push: true
           tags: phanthive/sushi:1.0
 
-      # other steps like running tests can also be included here
-
       - name: Deploy to server
         uses: appleboy/ssh-action@master
         with:
@@ -41,6 +54,6 @@ jobs:
           port: ${{ secrets.PROD_SERVER_PORT }}
           script: |
             docker pull phanthive/sushi:1.0
-            docker stop sushi-api || true
-            docker rm sushi-api || true
+            docker stop sushi || true
+            docker rm sushi || true
             docker run -d --name sushi-api -p 3000:3000 phanthive/sushi:1.0
