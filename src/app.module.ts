@@ -7,13 +7,13 @@ import { PrometheusController } from './controllers/prometheus.controller'; // I
 import { PrometheusService } from './controllers/prometheus.service';
 
 @Module({
-  imports: [],
-  controllers: [
-    AppController,
-    RequestController,
-    SaveDataController,
-    PrometheusController,
-  ], // Remove PrometheusService
-  providers: [AppService, PrometheusService], // Include PrometheusService as a provider
+    imports: [],
+    controllers: [
+        AppController,
+        RequestController,
+        SaveDataController,
+        PrometheusController,
+    ], // Remove PrometheusService
+    providers: [AppService, PrometheusService], // Include PrometheusService as a provider
 })
 export class AppModule {}

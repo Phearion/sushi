@@ -3,10 +3,10 @@ import { PrometheusService } from './prometheus.service';
 
 @Controller('prometheus')
 export class PrometheusController {
-  constructor(private readonly prometheusService: PrometheusService) {}
+    constructor(private readonly prometheusService: PrometheusService) {}
 
-  @Get('metrics')
-  async getMetrics() {
-    return this.prometheusService.getMetrics();
-  }
+    @Get('metrics')
+    async getMetrics() {
+        return this.prometheusService.getMetrics();
+    }
 }
