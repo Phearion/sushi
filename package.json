@@ -33,7 +33,9 @@
     "@nestjs/core": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "eventsource": "^2.0.2",
+    "express-prom-bundle": "^7.0.0",
     "mongoose": "^8.0.2",
+    "prom-client": "^15.1.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },
