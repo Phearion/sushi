@@ -67,4 +67,4 @@ jobs:
             docker stop sushi || true
             docker rm sushi || true
             docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ env.TAG_NAME }} .
-            docker run -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ env.TAG_NAME }}
+            docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ env.TAG_NAME }}
