@@ -13,6 +13,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Extract tag name
+        id: tag_name
+        run: echo "TAG_NAME=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -26,6 +30,12 @@ jobs:
 
       - name: Run tests
         run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy private files
+        run: sh deployPrivateFiles.sh
 
       # If tests pass, build and push Docker image
       - name: Set up Docker Buildx
@@ -43,7 +53,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: phanthive/sushi:1.0
+          tags: phanthive/sushi:${{ env.TAG_NAME }}
 
       - name: Deploy to server
         uses: appleboy/ssh-action@master
@@ -53,7 +63,7 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH }}
           port: ${{ secrets.PROD_SERVER_PORT }}
           script: |
-            docker pull phanthive/sushi:1.0
+            docker pull phanthive/sushi:${{ env.TAG_NAME }}
             docker stop sushi || true
             docker rm sushi || true
-            docker run -d --name sushi-api -p 3000:3000 phanthive/sushi:1.0
+            docker run -d --name sushi -p 3000:3000 phanthive/sushi:${{ env.TAG_NAME }}
