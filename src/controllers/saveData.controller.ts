@@ -9,25 +9,12 @@ import {
 } from '@nestjs/common';
 import RequestModel from '../assets/utils/models/Request';
 import type { IRequestDocument } from '../typings/MongoTypes';
-
-// Import Prometheus metrics from 'prom-client'
-import { Histogram, Counter } from 'prom-client';
-
-const httpRequestsTotal = new Counter({
-  name: 'http_requests_total',
-  help: 'Total number of HTTP requests',
-  labelNames: ['method', 'route', 'status_code'],
-});
-
-// Define a Histogram metric to record request durations
-const httpRequestsDuration = new Histogram({
-  name: 'http_requests_duration_seconds',
-  help: 'HTTP request duration in seconds',
-  labelNames: ['method', 'route', 'status_code'],
-});
+import { PrometheusService } from './prometheus.service'; // Import PrometheusService
 
 @Controller('saveData')
 export class SaveDataController {
+  constructor(private readonly prometheusService: PrometheusService) {} // Inject PrometheusService
+
   @Post()
   async receiveString(
     @Body('data') data: Record<string, string>,
@@ -44,15 +31,7 @@ export class SaveDataController {
       );
     }
 
-    const labels = {
-      method: req.method,
-      route: req.route.path,
-      status_code: HttpStatus.OK,
-    };
-
     try {
-      const startTime = process.hrtime(); // Record the start time
-
       const existingData = (await RequestModel.findOne({
         ipAddress,
       })) as IRequestDocument;
@@ -62,29 +41,25 @@ export class SaveDataController {
       } else {
         await RequestModel.create({ ipAddress, request: [request] });
       }
-      res.status(HttpStatus.OK).json({ message: 'Données sauvegardées' });
-
-      // Increment the HTTP requests counter for successful requests
-      httpRequestsTotal.inc(labels);
-
-      // Record the request duration
-      const durationInMilliseconds = process.hrtime(startTime);
-      httpRequestsDuration.observe(
-        labels,
-        durationInMilliseconds[0] + durationInMilliseconds[1] / 1e9,
+      // Increment the HTTP requests counter metric using PrometheusService
+      this.prometheusService.incrementCounter(
+        req.method,
+        req.route.path,
+        HttpStatus.OK,
       );
+      res.status(HttpStatus.OK).json({ message: 'Données sauvegardées' });
     } catch (error) {
       console.error('Error saving data:', error);
+      // Increment the HTTP requests counter metric for failed requests
+      this.prometheusService.incrementCounter(
+        req.method,
+        req.route.path,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       throw new HttpException(
         'Erreur lors de la sauvegarde des données',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-
-      // Increment the HTTP requests counter for failed requests
-      httpRequestsTotal.inc({
-        ...labels,
-        status_code: HttpStatus.INTERNAL_SERVER_ERROR,
-      });
     }
   }
 }
