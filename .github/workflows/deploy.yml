@@ -66,4 +66,5 @@ jobs:
             docker pull phanthive/sushi:${{ env.TAG_NAME }}
             docker stop sushi || true
             docker rm sushi || true
-            docker run -d --name sushi -p 3000:3000 phanthive/sushi:${{ env.TAG_NAME }}
+            docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ env.TAG_NAME }} .
+            docker run -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ env.TAG_NAME }}

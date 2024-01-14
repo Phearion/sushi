@@ -8,9 +8,10 @@ RUN npm install
 
 COPY . .
 
-ENV PORT=51000
+ARG PORT
+ENV PORT=${PORT}
 
-EXPOSE 42125
+EXPOSE ${PORT}
 
 CMD [ "npm", "run", "prod" ]
 
