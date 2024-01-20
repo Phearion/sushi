@@ -2,33 +2,57 @@ import sys
 import pickle
 import numpy as np
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from sklearn.feature_extraction.text import CountVectorizer
 import h5py
+from nltk.stem import PorterStemmer
+from nltk.corpus import stopwords
+from keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+from keras import backend as K
 
 def detect_sql_injection(request):
+    print(request)
 
     model_path = os.path.join(os.path.dirname(__file__), 'sql_injection_model.h5')
-    print(f"Model path: {model_path}")
+    tokenizer_path = os.path.join(os.path.dirname(__file__), 'tokenizer.pickle')
+    #print(f"Model path: {model_path}")
 
-    with h5py.File(model_path , 'r') as f:
-        print(f.keys())
+    model = tf.keras.models.load_model(model_path)
 
-    with open(model_path, 'rb') as f:
-        model = tf.keras.models.load_model(f)
+    stemmer = PorterStemmer()
+    with open(tokenizer_path, 'rb') as handle:
+        tokenizer = pickle.load(handle)
 
-    vectorizer = CountVectorizer()
-    request_vector = vectorizer.transform(np.array([request]))
 
-    prediction = model.predict(request_vector)
+    # Preprocess the request
+    request = request.lower()
+    tokens = request.split()
+    tokens = [word for word in tokens if word not in stopwords.words('english')]
+    tokens = [stemmer.stem(word) for word in tokens]
+    processed_request = ' '.join(tokens)
+
+    # Convert the preprocessed request into sequences of tokens
+    sequences = tokenizer.texts_to_sequences([processed_request])
+    padded_request = pad_sequences(sequences, maxlen=50)
+
+    # Use the model to make a prediction
+    prediction = model.predict(padded_request)
 
     return prediction[0]
 
 if __name__ == "__main__":
     request = sys.argv[1]
 
-    print("request:", request)
-
     result = detect_sql_injection(request)
 
-    print(result)
+    # prediction
+    if (result > 0.5):
+        statement = 'SQL injection attack'
+    else:
+        statement = 'benign'
+
+    print('Prediction:', result, 'La requête est', statement)
+
+    K.clear_session()
