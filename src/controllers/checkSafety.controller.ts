@@ -37,7 +37,7 @@ export class CheckSafetyController {
 
                 process.on('exit', () => {
                     console.log(`stdout: ${result}`);
-                    //console.log(result.trim()[result.trim().length - 9]);
+                    //console.log(result.trim()[result.trim().length - 8]);
                 });
             });
 
