@@ -61,13 +61,9 @@ export class CheckSafetyController {
                 res.status(HttpStatus.BAD_REQUEST).json({
                     message: 'SQL Injection detected',
                 });
-            } else if (request.includes('existingRequest')) {
-                res.status(HttpStatus.OK).json({
-                    message: 'Request exists',
-                });
             } else {
-                res.status(HttpStatus.NOT_FOUND).json({
-                    message: "Request doesn't exist",
+                res.status(HttpStatus.OK).json({
+                    message: 'All good',
                 });
             }
         } catch (error) {
