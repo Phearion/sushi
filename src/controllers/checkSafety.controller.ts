@@ -26,10 +26,14 @@ export class CheckSafetyController {
 
             const result = await new Promise<string>((resolve, reject) => {
                 let result = '';
-                console.log(request);
+                console.log("Requête en cours d'analyse:", request);
                 const process = spawn('python', [pythonScriptPath, request]);
                 process.stdout.on('data', (data) => {
-                    result += data.toString();
+                    let output = data.toString();
+                    if (output.includes('Prediction:')) {
+                        output = output.match(/\[(.*)\]/)[0];
+                        result += output;
+                    }
                 });
                 process.on('error', (error) => {
                     reject(error);
@@ -37,11 +41,23 @@ export class CheckSafetyController {
 
                 process.on('exit', () => {
                     console.log(`stdout: ${result}`);
-                    //console.log(result.trim()[result.trim().length - 8]);
+                    resolve(result);
+                });
+
+                process.on('close', (code) => {
+                    if (code !== 0) {
+                        console.log(`Python script exited with code ${code}`);
+                        reject(`Python script exited with code ${code}`);
+                    } else {
+                        console.log(`stdout: ${result}`);
+                        resolve(result);
+                    }
                 });
             });
 
-            if (result.trim()[result.trim().length - 8] > '5') {
+            // try to convert the array string to an array
+            const resultArray = JSON.parse(result.trim());
+            if (resultArray[0] > 0.5) {
                 res.status(HttpStatus.BAD_REQUEST).json({
                     message: 'SQL Injection detected',
                 });

@@ -6,8 +6,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from sklearn.feature_extraction.text import CountVectorizer
 import h5py
-from nltk.stem import PorterStemmer
+import nltk
 from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
 from keras import backend as K
@@ -25,6 +26,7 @@ def detect_sql_injection(request):
     with open(tokenizer_path, 'rb') as handle:
         tokenizer = pickle.load(handle)
 
+    nltk.download('stopwords')
 
     # Preprocess the request
     request = request.lower()

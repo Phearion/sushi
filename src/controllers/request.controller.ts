@@ -27,7 +27,7 @@ export class RequestController {
         try {
             const { client } = await importDynamic('@gradio/client');
             const C = await client(
-                'https://phanthive-phanthive-bigbrain.hf.space/--replicas/9278f/',
+                'https://phanthive-phanthive-bigbrain.hf.space/--replicas/expro/',
                 {},
             );
             const result = await C.predict('/predict', [data]);
