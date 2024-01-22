@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { spawn } from 'child_process';
 import * as path from 'path';
+import * as os from 'os';
 
 @Controller('checkRequest')
 export class CheckSafetyController {
@@ -27,7 +28,10 @@ export class CheckSafetyController {
             const result = await new Promise<string>((resolve, reject) => {
                 let result = '';
                 console.log("Requête en cours d'analyse:", request);
-                const pythonCommand = 'python'; // using python because docker env
+                const pythonCommand =
+                    os.platform() === 'win32'
+                        ? 'python'
+                        : '/usr/src/app/sushi-venv/bin/python';
                 const process = spawn(pythonCommand, [
                     pythonScriptPath,
                     request,

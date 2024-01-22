@@ -18,7 +18,7 @@ RUN npm install
 COPY . .
 
 # Create and activate the Python virtual environment
-RUN python3.9 -m venv sushi-venv
+RUN python -m venv sushi-venv
 RUN . sushi-venv/bin/activate
 
 # Install Python dependencies
