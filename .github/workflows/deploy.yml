@@ -13,9 +13,15 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Extract tag name
-              id: tag_name
-              run: echo "TAG_NAME=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+            - name: Check if tag exists
+              id: check_tag
+              run: |
+                  TAG_NAME=$(git describe --tags --abbrev=0)
+                  if [ -z "$TAG_NAME" ]; then
+                      echo "No tags found. Skipping deployment."
+                      exit 1
+                  fi
+                  echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
             - name: Set up Node.js
               uses: actions/setup-node@v3
