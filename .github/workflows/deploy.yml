@@ -9,6 +9,8 @@ jobs:
     setup:
         runs-on: self-hosted
 
+        outputs:
+            TAG_NAME: ${{ steps.check_tag.outputs.TAG_NAME }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
@@ -21,7 +23,7 @@ jobs:
                       echo "No tags found. Skipping deployment."
                       exit 1
                   fi
-                  echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+                  echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_OUTPUT"
 
             - name: Set up Node.js
               uses: actions/setup-node@v3
@@ -30,9 +32,6 @@ jobs:
 
             - name: Install dependencies
               run: npm install
-
-        outputs:
-            TAG_NAME: ${{ steps.check_tag.outputs.TAG_NAME }}
 
     test:
         needs: setup
