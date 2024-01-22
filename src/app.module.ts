@@ -5,6 +5,7 @@ import { RequestController } from './controllers/request.controller';
 import { SaveDataController } from './controllers/saveData.controller';
 import { PrometheusController } from './controllers/prometheus.controller'; // Include PrometheusController here
 import { PrometheusService } from './controllers/prometheus.service';
+import { CheckSafetyController } from './controllers/checkSafety.controller';
 
 @Module({
     imports: [],
@@ -13,6 +14,7 @@ import { PrometheusService } from './controllers/prometheus.service';
         RequestController,
         SaveDataController,
         PrometheusController,
+        CheckSafetyController,
     ], // Remove PrometheusService
     providers: [AppService, PrometheusService], // Include PrometheusService as a provider
 })
