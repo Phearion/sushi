@@ -37,5 +37,8 @@ ENV PORT=${PORT}
 # Expose the port
 EXPOSE ${PORT}
 
+# Third stage: Node.js
+FROM node:20
+
 # Command to run the application
 CMD [ "npm", "run", "prod" ]
