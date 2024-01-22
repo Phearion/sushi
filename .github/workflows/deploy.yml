@@ -26,9 +26,6 @@ jobs:
         runs-on: self-hosted
 
         steps:
-            - name: Execute Gradio Modification
-              run: npm run fix:gradio
-
             - name: Run tests
               run: npm run test
 
@@ -45,6 +42,9 @@ jobs:
 
             - name: Deploy AI sql model
               run: npm run move:models
+
+            - name: Execute Gradio Modification
+              run: npm run fix:gradio
 
     docker-deploy:
         needs: build
