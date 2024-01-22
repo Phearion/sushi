@@ -3,18 +3,17 @@ FROM python:3.10
 
 WORKDIR /usr/src/app
 
-# create a virtual env called sushi-venv if it doesn't exist already
-RUN python3 -m venv sushi-venv
-
-# activate the virtual env
-RUN . sushi-venv/bin/activate
-
-
 # install nodejs dependencies
 COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+# create a virtual env called sushi-venv if it doesn't exist already
+RUN python3 -m venv sushi-venv
+
+# activate the virtual env
+RUN . sushi-venv/bin/activate
 
 # install dependencies
 RUN pip install --upgrade pip
