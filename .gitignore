@@ -44,3 +44,5 @@ __pycache__/
 .env
 .env.local
 .env.development.local
+
+sushi-venv/

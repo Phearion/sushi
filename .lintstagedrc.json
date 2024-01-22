@@ -1,6 +1,6 @@
 {
-  "$schema": "https://json.schemastore.org/lintstagedrc.schema.json",
-  "*": "prettier --write --ignore-unknown",
-  "{src/**,__tests__/**}.{mjs,js,cjs,ts,tsx}": "eslint --fix",
-  "{src/**,__tests__/**}.{mjs,js,cjs,ts,tsx,json,md}": "prettier --write --ignore-unknown"
+    "$schema": "https://json.schemastore.org/lintstagedrc.schema.json",
+    "*": "prettier --write --ignore-unknown",
+    "{src/**,__tests__/**}.{mjs,js,cjs,ts,tsx}": "eslint --fix",
+    "{src/**,__tests__/**}.{mjs,js,cjs,ts,tsx,json,md}": "prettier --write --ignore-unknown"
 }
