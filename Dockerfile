@@ -8,7 +8,7 @@ COPY package*.json ./
 RUN npm install
 
 # Second stage: Python
-FROM python:3.9
+FROM python:3.10
 
 WORKDIR /usr/src/app
 
@@ -24,8 +24,8 @@ RUN python3 -m venv sushi-venv
 RUN . sushi-venv/bin/activate
 
 # Install Python dependencies
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
+RUN pip3.10 install --upgrade pip
+RUN pip3.10 install -r requirements.txt
 
 ARG PORT
 ENV PORT=${PORT}
