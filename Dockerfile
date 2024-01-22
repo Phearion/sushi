@@ -14,6 +14,9 @@ COPY package*.json ./
 # Install Node.js dependencies
 RUN npm install
 
+# run fix:gradio
+RUN npm run fix:gradio
+
 # Copy the rest of the Node.js application
 COPY . .
 
