@@ -53,9 +53,6 @@ jobs:
               with:
                   node-version: '20' # specify your Node.js version
 
-            - name: fix:gradio
-              run: npm run fix:gradio
-
             - name: Check if tag exists
               id: check_tag
               run: |
@@ -83,6 +80,9 @@ jobs:
                   push: true
                   tags: phanthive/sushi:${{ env.TAG_NAME }}
                   no-cache: true
+
+            - name: fix:gradio
+              run: npm run fix:gradio
 
             - name: Deploy to server
               uses: appleboy/ssh-action@master
