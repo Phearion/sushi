@@ -19,7 +19,7 @@ COPY . .
 
 # Create and activate the Python virtual environment
 RUN python3.9 -m venv sushi-venv
-RUN . source sushi-venv/bin/activate
+RUN . sushi-venv/bin/activate
 
 # Install Python dependencies
 RUN sushi-venv/bin/pip install --upgrade pip
