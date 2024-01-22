@@ -51,6 +51,11 @@ jobs:
         runs-on: self-hosted
 
         steps:
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20' # specify your Node.js version
+
             - name: Check if tag exists
               id: check_tag
               run: |
