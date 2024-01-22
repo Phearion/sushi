@@ -46,7 +46,7 @@ jobs:
             - name: Deploy AI sql model
               run: npm run move:models
 
-    docker:
+    docker-deploy:
         needs: build
         runs-on: self-hosted
 
@@ -77,24 +77,6 @@ jobs:
                   file: Dockerfile
                   push: true
                   tags: phanthive/sushi:${{ env.TAG_NAME }}
-
-        outputs:
-            tag_name: ${{ needs.docker.outputs.tag_name }}
-
-    deploy:
-        needs: docker
-        runs-on: self-hosted
-
-        steps:
-            - name: Check if tag exists
-              id: check_tag
-              run: |
-                  TAG_NAME=$(git describe --tags --abbrev=0)
-                  if [ -z "$TAG_NAME" ]; then
-                   echo "No tags found. Skipping deployment."
-                   exit 1
-                  fi
-                  echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
             - name: Deploy to server
               uses: appleboy/ssh-action@master

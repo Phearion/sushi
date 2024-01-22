@@ -24,8 +24,8 @@ RUN python3.9 -m venv sushi-venv
 RUN . sushi-venv/bin/activate
 
 # Install Python dependencies
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
+RUN sushi-venv/bin/pip install --upgrade pip
+RUN sushi-venv/bin/pip install -r requirements.txt
 
 ARG PORT
 ENV PORT=${PORT}
