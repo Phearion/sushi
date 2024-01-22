@@ -9,8 +9,6 @@ jobs:
     setup:
         runs-on: self-hosted
 
-        outputs:
-            TAG_NAME: ${{ steps.check_tag.outputs.TAG_NAME }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
@@ -33,11 +31,17 @@ jobs:
             - name: Install dependencies
               run: npm install
 
+        outputs:
+            tag_name: ${{ steps.check_tag.outputs.TAG_NAME }}
+
     test:
         needs: setup
         runs-on: self-hosted
 
         steps:
+            - name: try to get tag name
+              run: echo ${{ needs.setup.outputs.TAG_NAME }}
+
             - name: Execute Gradio Modification
               run: npm run fix:gradio
 
