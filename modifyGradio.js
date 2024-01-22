@@ -3,6 +3,7 @@ const path = require('path');
 
 // Path to the file
 const filePath = path.join(
+    __dirname,
     'node_modules',
     '@gradio',
     'client',
