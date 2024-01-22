@@ -82,6 +82,7 @@ jobs:
                   file: Dockerfile
                   push: true
                   tags: phanthive/sushi:${{ env.TAG_NAME }}
+                  no-cache: true
 
             - name: Deploy to server
               uses: appleboy/ssh-action@master
