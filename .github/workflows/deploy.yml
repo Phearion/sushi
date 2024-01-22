@@ -6,7 +6,7 @@ on:
             - 'v*' # Trigger the workflow on tags starting with 'v'
 
 jobs:
-    build-and-deploy:
+    setup:
         runs-on: self-hosted
 
         steps:
@@ -25,19 +25,36 @@ jobs:
             - name: Install dependencies
               run: npm install
 
+    test:
+        needs: setup
+        runs-on: self-hosted
+
+        steps:
             - name: Execute Gradio Modification
               run: npm run fix:gradio
 
             - name: Run tests
               run: npm run test
 
+    build:
+        needs: test
+        runs-on: self-hosted
+
+        steps:
             - name: Build
               run: npm run build
 
             - name: Deploy private files
               run: sh deployPrivateFiles.sh
 
-            # If tests pass, build and push Docker image
+            - name: Deploy AI sql model
+              run: npm run move:models
+
+    docker:
+        needs: build
+        runs-on: self-hosted
+
+        steps:
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v1
 
@@ -55,6 +72,11 @@ jobs:
                   push: true
                   tags: phanthive/sushi:${{ env.TAG_NAME }}
 
+    deploy:
+        needs: docker
+        runs-on: self-hosted
+
+        steps:
             - name: Deploy to server
               uses: appleboy/ssh-action@master
               with:
