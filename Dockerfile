@@ -1,21 +1,29 @@
-FROM node:20
+# First stage: Node.js
+FROM node:20 AS build-node
+
+WORKDIR /usr/src/app
+
+# Install Node.js dependencies
+COPY package*.json ./
+RUN npm install
+
+# Second stage: Python
 FROM python:3.10
 
 WORKDIR /usr/src/app
 
-# install nodejs dependencies
-COPY package*.json ./
-RUN npm install
+# Copy Node.js build artifacts from the first stage
+COPY --from=build-node /usr/src/app/node_modules ./node_modules
+COPY --from=build-node /usr/src/app/package*.json ./
 
+# Copy the rest of the application
 COPY . .
 
-# create a virtual env called sushi-venv if it doesn't exist already
+# Create and activate the virtual environment
 RUN python3 -m venv sushi-venv
-
-# activate the virtual env
 RUN . sushi-venv/bin/activate
 
-# install dependencies
+# Install Python dependencies
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
@@ -25,4 +33,3 @@ ENV PORT=${PORT}
 EXPOSE ${PORT}
 
 CMD [ "npm", "run", "prod" ]
-
