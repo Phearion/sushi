@@ -81,9 +81,6 @@ jobs:
                   tags: phanthive/sushi:${{ env.TAG_NAME }}
                   no-cache: true
 
-            - name: fix:gradio
-              run: npm run fix:gradio
-
             - name: Deploy to server
               uses: appleboy/ssh-action@master
               with:
