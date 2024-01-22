@@ -2,7 +2,7 @@
 FROM node:20 AS build-node
 
 # Set working directory for Node.js
-WORKDIR /usr/src/app
+WORKDIR /usr/src/node-app
 
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
@@ -10,17 +10,17 @@ COPY package*.json ./
 # Install Node.js dependencies
 RUN npm install
 
-# Copy Node.js related files
+# Copy the rest of the Node.js application
 COPY . .
 
 # Second stage: Python with Node.js
 FROM python:3.9
 
-# Copy Node.js build artifacts from the first stage
-COPY --from=build-node /usr/src/app .
-
 # Set working directory for Python
 WORKDIR /usr/src/app
+
+# Copy Node.js build artifacts from the first stage
+COPY --from=build-node /usr/src/node-app .
 
 # Create and activate the virtual environment
 RUN python3.9 -m venv sushi-venv
