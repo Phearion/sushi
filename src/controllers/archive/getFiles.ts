@@ -26,8 +26,9 @@ export const getFiles = async (
         'assets',
         'aero1Sources',
         subject,
-        'fiche',
+        'sheet',
         topic,
+        'fr',
     );
     console.log(dirPath);
 
