@@ -13,16 +13,6 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v3
 
-            - name: Check if tag exists
-              id: check_tag
-              run: |
-                  TAG_NAME=$(git describe --tags --abbrev=0)
-                  if [ -z "$TAG_NAME" ]; then
-                      echo "No tags found. Skipping deployment."
-                      exit 1
-                  fi
-                  echo "TAG_NAME=$TAG_NAME" >> "$GITHUB_OUTPUT"
-
             - name: Set up Node.js
               uses: actions/setup-node@v3
               with:
@@ -31,33 +21,22 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-        outputs:
-            tag_name: ${{ steps.check_tag.outputs.TAG_NAME }}
-
     test:
         needs: setup
         runs-on: self-hosted
 
         steps:
-            - name: try to get tag name
-              run: echo ${{ needs.setup.outputs.tag_name }}
-
             - name: Execute Gradio Modification
               run: npm run fix:gradio
 
             - name: Run tests
               run: npm run test
 
-        outputs:
-            tag_name: ${{ needs.test.outputs.TAG_NAME }}
     build:
         needs: test
         runs-on: self-hosted
 
         steps:
-            - name: try to get tag name
-              run: echo ${{ needs.test.outputs.tag_name }}
-
             - name: Build
               run: npm run build
 
@@ -67,16 +46,20 @@ jobs:
             - name: Deploy AI sql model
               run: npm run move:models
 
-        outputs:
-            tag_name: ${{ needs.build.outputs.tag_name }}
-
     docker:
         needs: build
         runs-on: self-hosted
 
         steps:
-            - name: try to get tag name
-              run: echo ${{ needs.build.outputs.tag_name }}
+            - name: Check if tag exists
+              id: check_tag
+              run: |
+                  TAG_NAME=$(git describe --tags --abbrev=0)
+                  if [ -z "$TAG_NAME" ]; then
+                   echo "No tags found. Skipping deployment."
+                   exit 1
+                  fi
+                  echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v1
@@ -93,7 +76,7 @@ jobs:
                   context: .
                   file: Dockerfile
                   push: true
-                  tags: phanthive/sushi:${{ needs.build.outputs.tag_name }}
+                  tags: phanthive/sushi:${{ env.TAG_NAME }}
 
         outputs:
             tag_name: ${{ needs.docker.outputs.tag_name }}
@@ -103,6 +86,16 @@ jobs:
         runs-on: self-hosted
 
         steps:
+            - name: Check if tag exists
+              id: check_tag
+              run: |
+                  TAG_NAME=$(git describe --tags --abbrev=0)
+                  if [ -z "$TAG_NAME" ]; then
+                   echo "No tags found. Skipping deployment."
+                   exit 1
+                  fi
+                  echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+
             - name: Deploy to server
               uses: appleboy/ssh-action@master
               with:
@@ -111,8 +104,8 @@ jobs:
                   key: ${{ secrets.PROD_SERVER_SSH }}
                   port: ${{ secrets.PROD_SERVER_PORT }}
                   script: |
-                      docker pull phanthive/sushi:${{ needs.docker.outputs.tag_name }}
+                      docker pull phanthive/sushi:${{ env.TAG_NAME }}
                       docker stop sushi || true
                       docker rm sushi || true
-                      docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ needs.docker.outputs.tag_name }} .
-                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ needs.docker.outputs.tag_name }}
+                      docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ env.TAG_NAME }} .
+                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ env.TAG_NAME }}
