@@ -22,6 +22,7 @@ jobs:
                       exit 1
                   fi
                   echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+                  echo "::set-output name=tag_name::$TAG_NAME"
 
             - name: Set up Node.js
               uses: actions/setup-node@v3
@@ -30,6 +31,9 @@ jobs:
 
             - name: Install dependencies
               run: npm install
+
+        outputs:
+            tag_name: ${{ steps.check_tag.outputs.tag_name }}
 
     test:
         needs: setup
