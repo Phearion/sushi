@@ -82,7 +82,7 @@ jobs:
                   context: .
                   file: Dockerfile
                   push: true
-                  tags: phanthive/sushi:${{ needs.setup.outputs.TAG_NAME }}
+                  tags: phanthive/sushi:${{ needs.setup.outputs.tag_name }}
 
     deploy:
         needs: docker
@@ -97,8 +97,8 @@ jobs:
                   key: ${{ secrets.PROD_SERVER_SSH }}
                   port: ${{ secrets.PROD_SERVER_PORT }}
                   script: |
-                      docker pull phanthive/sushi:${{ needs.setup.outputs.TAG_NAME }}
+                      docker pull phanthive/sushi:${{ needs.setup.outputs.tag_name }}
                       docker stop sushi || true
                       docker rm sushi || true
-                      docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ needs.setup.outputs.TAG_NAME }} .
-                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ needs.setup.outputs.TAG_NAME }}
+                      docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ needs.setup.outputs.tag_name }} .
+                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ needs.setup.outputs.tag_name }}
