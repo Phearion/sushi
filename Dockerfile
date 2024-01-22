@@ -1,10 +1,14 @@
-# First stage: Node.js
-FROM node:20 AS build-node
+# Base image with Python
+FROM python:3.9
 
-# Set working directory for Node.js
-WORKDIR /usr/src/node-app
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs
 
-# Copy package.json and package-lock.json (if available)
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json for Node.js
 COPY package*.json ./
 
 # Install Node.js dependencies
@@ -13,16 +17,7 @@ RUN npm install
 # Copy the rest of the Node.js application
 COPY . .
 
-# Second stage: Python with Node.js
-FROM python:3.9
-
-# Set working directory for Python
-WORKDIR /usr/src/app
-
-# Copy Node.js build artifacts from the first stage
-COPY --from=build-node /usr/src/node-app .
-
-# Create and activate the virtual environment
+# Create and activate the Python virtual environment
 RUN python3.9 -m venv sushi-venv
 RUN . sushi-venv/bin/activate
 
@@ -36,9 +31,6 @@ ENV PORT=${PORT}
 
 # Expose the port
 EXPOSE ${PORT}
-
-# Third stage: Node.js
-FROM node:20
 
 # Command to run the application
 CMD [ "npm", "run", "prod" ]
