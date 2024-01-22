@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { spawn } from 'child_process';
 import * as path from 'path';
+import * as os from 'os';
 
 @Controller('checkRequest')
 export class CheckSafetyController {
@@ -27,7 +28,12 @@ export class CheckSafetyController {
             const result = await new Promise<string>((resolve, reject) => {
                 let result = '';
                 console.log("Requête en cours d'analyse:", request);
-                const process = spawn('python', [pythonScriptPath, request]);
+                const pythonCommand =
+                    os.platform() === 'win32' ? 'python' : 'python3';
+                const process = spawn(pythonCommand, [
+                    pythonScriptPath,
+                    request,
+                ]);
                 process.stdout.on('data', (data) => {
                     let output = data.toString();
                     if (output.includes('Prediction:')) {
