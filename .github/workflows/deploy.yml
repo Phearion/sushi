@@ -21,7 +21,7 @@ jobs:
                       echo "No tags found. Skipping deployment."
                       exit 1
                   fi
-                  echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+                  echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
 
             - name: Set up Node.js
               uses: actions/setup-node@v3
@@ -79,7 +79,7 @@ jobs:
                   context: .
                   file: Dockerfile
                   push: true
-                  tags: phanthive/sushi:${{ env.TAG_NAME }}
+                  tags: phanthive/sushi:${{ needs.setup.outputs.TAG_NAME }}
 
     deploy:
         needs: docker
@@ -94,8 +94,8 @@ jobs:
                   key: ${{ secrets.PROD_SERVER_SSH }}
                   port: ${{ secrets.PROD_SERVER_PORT }}
                   script: |
-                      docker pull phanthive/sushi:${{ env.TAG_NAME }}
+                      docker pull phanthive/sushi:${{ needs.setup.outputs.TAG_NAME }}
                       docker stop sushi || true
                       docker rm sushi || true
-                      docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ env.TAG_NAME }} .
-                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ env.TAG_NAME }}
+                      docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ needs.setup.outputs.TAG_NAME }} .
+                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ needs.setup.outputs.TAG_NAME }}
