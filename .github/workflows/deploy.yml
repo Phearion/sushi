@@ -40,7 +40,7 @@ jobs:
 
         steps:
             - name: try to get tag name
-              run: echo ${{ needs.setup.outputs.TAG_NAME }}
+              run: echo ${{ needs.setup.outputs.tag_name }}
 
             - name: Execute Gradio Modification
               run: npm run fix:gradio
@@ -48,6 +48,8 @@ jobs:
             - name: Run tests
               run: npm run test
 
+        outputs:
+            tag_name: ${{ needs.test.outputs.TAG_NAME }}
     build:
         needs: test
         runs-on: self-hosted
@@ -61,6 +63,9 @@ jobs:
 
             - name: Deploy AI sql model
               run: npm run move:models
+
+        outputs:
+            tag_name: ${{ needs.build.outputs.tag_name }}
 
     docker:
         needs: build
@@ -82,7 +87,10 @@ jobs:
                   context: .
                   file: Dockerfile
                   push: true
-                  tags: phanthive/sushi:${{ needs.setup.outputs.tag_name }}
+                  tags: phanthive/sushi:${{ needs.build.outputs.tag_name }}
+
+        outputs:
+            tag_name: ${{ needs.docker.outputs.tag_name }}
 
     deploy:
         needs: docker
@@ -97,8 +105,8 @@ jobs:
                   key: ${{ secrets.PROD_SERVER_SSH }}
                   port: ${{ secrets.PROD_SERVER_PORT }}
                   script: |
-                      docker pull phanthive/sushi:${{ needs.setup.outputs.tag_name }}
+                      docker pull phanthive/sushi:${{ needs.docker.outputs.tag_name }}
                       docker stop sushi || true
                       docker rm sushi || true
-                      docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ needs.setup.outputs.tag_name }} .
-                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ needs.setup.outputs.tag_name }}
+                      docker build --build-arg API_PORT=${{ secrets.API_PORT }} -t phanthive/sushi:${{ needs.docker.outputs.tag_name }} .
+                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ needs.docker.outputs.tag_name }}
