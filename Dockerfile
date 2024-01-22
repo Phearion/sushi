@@ -8,7 +8,7 @@ COPY package*.json ./
 RUN npm install
 
 # Second stage: Python
-FROM python:3.10
+FROM python:3.9
 
 WORKDIR /usr/src/app
 
