@@ -14,6 +14,9 @@ COPY package*.json ./
 # Install Node.js dependencies
 RUN npm install
 
+# Copy the modifyGradio.js script
+COPY modifyGradio.js ./
+
 # Run the fix:gradio
 RUN npm run fix:gradio
 
