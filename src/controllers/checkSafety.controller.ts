@@ -46,7 +46,6 @@ export class CheckSafetyController {
 
                 process.on('close', (code) => {
                     if (code !== 0) {
-                        console.log(`Python script exited with code ${code}`);
                         reject(`Python script exited with code ${code}`);
                     } else {
                         console.log(`stdout: ${result}`);
@@ -56,7 +55,16 @@ export class CheckSafetyController {
             });
 
             // try to convert the array string to an array
-            const resultArray = JSON.parse(result.trim());
+            let resultArray = [];
+            try {
+                resultArray = JSON.parse(result.trim());
+            } catch (error) {
+                console.error('Error parsing result:', error);
+                new HttpException(
+                    'Error processing the request',
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+            }
             if (resultArray[0] > 0.5) {
                 res.status(HttpStatus.BAD_REQUEST).json({
                     message: 'SQL Injection detected',

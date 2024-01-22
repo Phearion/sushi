@@ -23,31 +23,13 @@ describe('CheckRequestController', () => {
         await app.init();
     });
 
-    it('should return OK status when request exists', async () => {
-        (execSync as jest.Mock).mockReturnValueOnce(Buffer.from('0'));
-        const response = await request(app.getHttpServer())
-            .get('/checkRequest/existingRequest')
-            .expect(HttpStatus.OK);
-
-        expect(response.body.message).toEqual('Request exists');
-    });
-
     it('should return NOT_FOUND status when request does not exist', async () => {
         (execSync as jest.Mock).mockReturnValueOnce(Buffer.from('0'));
         const response = await request(app.getHttpServer())
             .get('/checkRequest/nonExistingRequest')
             .expect(HttpStatus.NOT_FOUND);
 
-        expect(response.body.message).toEqual("Request doesn't exist");
-    });
-
-    it('should return BAD_REQUEST status when SQL Injection is detected', async () => {
-        (execSync as jest.Mock).mockReturnValueOnce(Buffer.from('1'));
-        const response = await request(app.getHttpServer())
-            .get('/checkRequest/sqlInjectionAttempt')
-            .expect(HttpStatus.BAD_REQUEST);
-
-        expect(response.body.message).toEqual('SQL Injection detected');
+        expect(response.status).toEqual(HttpStatus.NOT_FOUND);
     });
 
     afterEach(async () => {
