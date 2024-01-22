@@ -32,7 +32,7 @@ jobs:
               run: npm install
 
         outputs:
-            tag_name: ${{ steps.check_tag.outputs.TAG_NAME }}
+            TAG_NAME: ${{ steps.check_tag.outputs.TAG_NAME }}
 
     test:
         needs: setup
