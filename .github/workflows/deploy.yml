@@ -1,51 +1,85 @@
-name: SUSHI API
+name: SUSHI API Deployment
 
 on:
     push:
         tags:
             - 'v*' # Trigger the workflow on tags starting with 'v'
+
 jobs:
-    deploy:
+    setup:
         runs-on: self-hosted
 
         steps:
             - name: Checkout code
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v3
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
               with:
-                  node-version: 21.1.0
-
-            - name: Pyenv in 3.10 with name sushi-env
-              run: pyenv install 3.10.0 && pyenv virtualenv 3.10.0 sushi-env
-
-            - name: Pyenv activate
-              run: source sushi-env/bin/activate
-
-            - name: Install Python dependencies
-              run: pip install -r requirements.txt
+                  node-version: '20' # specify your Node.js version
 
             - name: Install dependencies
               run: npm install
 
-            - name: Execute Gradio Modification
-              run: npm run fix:gradio
+    test:
+        needs: setup
+        runs-on: self-hosted
 
+        steps:
             - name: Run tests
               run: npm run test
 
+    build:
+        needs: test
+        runs-on: self-hosted
+
+        steps:
             - name: Build
               run: npm run build
 
             - name: Deploy private files
               run: sh deployPrivateFiles.sh
 
-            - name: Package only the dist folder
-              uses: actions/upload-artifact@v2
+            - name: Deploy AI sql model
+              run: npm run move:models
+
+    docker-deploy:
+        needs: build
+        runs-on: self-hosted
+
+        steps:
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
               with:
-                  name: dist
-                  path: dist
+                  node-version: '20' # specify your Node.js version
+
+            - name: Check if tag exists
+              id: check_tag
+              run: |
+                  TAG_NAME=$(git describe --tags --abbrev=0)
+                  if [ -z "$TAG_NAME" ]; then
+                   echo "No tags found. Skipping deployment."
+                   exit 1
+                  fi
+                  echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v1
+
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.DOCKER_HUB_USERNAME }}
+                  password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+            - name: Build and push Docker image
+              uses: docker/build-push-action@v5
+              with:
+                  context: .
+                  file: Dockerfile
+                  push: true
+                  tags: phanthive/sushi:${{ env.TAG_NAME }}
+                  no-cache: true
 
             - name: Deploy to server
               uses: appleboy/ssh-action@master
@@ -54,20 +88,8 @@ jobs:
                   username: ${{ secrets.PROD_SERVER_USER }}
                   key: ${{ secrets.PROD_SERVER_SSH }}
                   port: ${{ secrets.PROD_SERVER_PORT }}
-                  command: 'unzip -o deploy.zip -d dist'
-
-            - name: Whoami after deploy
-              run: whoami
-
-            # remove everything except on bash dist/
-            - name: Remove everything except dist/ and node_modules/ and package.json
-              run: ls -I dist -I node_modules -I package.json | xargs rm -rf
-
-            - name: Stop bot with pm2 if running
-              run: pm2 stop sushi || true
-
-            - name: Start bot with pm2
-              run: pm2 start dist/main.js --name sushi
-
-            - name: Save pm2 process list
-              run: pm2 save
+                  script: |
+                      docker pull phanthive/sushi:${{ env.TAG_NAME }}
+                      docker stop sushi || true
+                      docker rm sushi || true
+                      docker run -e PORT=${{ secrets.API_PORT }} -d --name sushi -p ${{ secrets.API_PORT }}:${{ secrets.API_PORT }} phanthive/sushi:${{ env.TAG_NAME }}

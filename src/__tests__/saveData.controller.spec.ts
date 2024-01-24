@@ -3,6 +3,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { SaveDataController } from '../controllers/saveData.controller';
 import RequestModel from '../assets/utils/models/Request';
+import { PrometheusService } from '../controllers/prometheus.service';
 
 describe('SaveDataController', () => {
     let app: INestApplication;
@@ -11,9 +12,8 @@ describe('SaveDataController', () => {
     beforeEach(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             controllers: [SaveDataController],
-        })
-            // Mock any services or modules if required
-            .compile();
+            providers: [PrometheusService], // Include PrometheusService here
+        }).compile();
 
         app = moduleFixture.createNestApplication();
         await app.init();

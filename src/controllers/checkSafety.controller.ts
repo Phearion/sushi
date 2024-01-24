@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { spawn } from 'child_process';
 import * as path from 'path';
+import * as os from 'os';
 
 @Controller('checkRequest')
 export class CheckSafetyController {
@@ -27,7 +28,14 @@ export class CheckSafetyController {
             const result = await new Promise<string>((resolve, reject) => {
                 let result = '';
                 console.log("Requête en cours d'analyse:", request);
-                const process = spawn('python', [pythonScriptPath, request]);
+                const pythonCommand =
+                    os.platform() === 'win32'
+                        ? 'python'
+                        : '/usr/src/app/sushi-venv/bin/python';
+                const process = spawn(pythonCommand, [
+                    pythonScriptPath,
+                    request,
+                ]);
                 process.stdout.on('data', (data) => {
                     let output = data.toString();
                     if (output.includes('Prediction:')) {
@@ -46,7 +54,6 @@ export class CheckSafetyController {
 
                 process.on('close', (code) => {
                     if (code !== 0) {
-                        console.log(`Python script exited with code ${code}`);
                         reject(`Python script exited with code ${code}`);
                     } else {
                         console.log(`stdout: ${result}`);
@@ -56,7 +63,16 @@ export class CheckSafetyController {
             });
 
             // try to convert the array string to an array
-            const resultArray = JSON.parse(result.trim());
+            let resultArray = [];
+            try {
+                resultArray = JSON.parse(result.trim());
+            } catch (error) {
+                console.error('Error parsing result:', error);
+                new HttpException(
+                    'Error processing the request',
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                );
+            }
             if (resultArray[0] > 0.5) {
                 res.status(HttpStatus.BAD_REQUEST).json({
                     message: 'SQL Injection detected',
